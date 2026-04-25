@@ -21,7 +21,7 @@ initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
 monthly_expense = st.number_input(
     "Monthly Expense (₹)",
     value=100000,
-    help='Enter your current monthly expense in today\'s value. The model automatically increases this every year based on simulated inflation. This 
+    help='Enter your current monthly expense in todays value. The model automatically increases this every year based on simulated inflation. This 
 means your future withdrawals are NOT constant—they grow over time to maintain purchasing power.'
 )
 st.caption("Note: Expenses are adjusted for inflation each year. They are not constant over the full duration.")
