@@ -143,9 +143,9 @@ def simulate_once():
     return True, years
 
 # ---------------- Static PDF Link ----------------
-PDF_URL = "https://raw.githubusercontent.com/kdravi/retirement-simulator/main/retirement_report.pdf"
+PDF_URL = "https://raw.githubusercontent.com/kdravi/retirement-simulator/main/retirement_simulation_methodology.pdf"
 
-# Note: Place a pre-generated PDF file named 'retirement_report.pdf' in your GitHub repo.
+# Note: Place a pre-generated PDF file named 'retirement_simulation_methodology.pdf' in your GitHub repo.
 # This avoids generating the PDF on every simulation run and improves performance.
 
 # ---------------- Run Simulation ----------------
