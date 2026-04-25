@@ -142,34 +142,11 @@ def simulate_once():
 
     return True, years
 
-# ---------------- PDF Generator ----------------
-def generate_pdf():
-    doc = SimpleDocTemplate("retirement_report.pdf")
-    styles = getSampleStyleSheet()
-    content = []
+# ---------------- Static PDF Link ----------------
+PDF_URL = "https://raw.githubusercontent.com/kdravi/retirement-simulator/main/retirement_report.pdf"
 
-    content.append(Paragraph("Retirement Simulation – Methodology & Assumptions", styles['Title']))
-    content.append(Spacer(1, 12))
-
-    content.append(Paragraph("Approach:", styles['Heading2']))
-    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios.", styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Key Concepts:", styles['Heading2']))
-    content.append(Paragraph("Sequence of returns risk, inflation-adjusted withdrawals, diversified allocation, probability outcomes.", 
-styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Market Modeling:", styles['Heading2']))
-    content.append(Paragraph("Equity uses Student-t distribution; other assets use normal distribution; regimes simulate macro changes.", 
-styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Disclaimer:", styles['Heading2']))
-    content.append(Paragraph("Educational tool only. Not financial advice.", styles['BodyText']))
-
-    doc.build(content)
-    return "retirement_report.pdf"
+# Note: Place a pre-generated PDF file named 'retirement_report.pdf' in your GitHub repo.
+# This avoids generating the PDF on every simulation run and improves performance.
 
 # ---------------- Run Simulation ----------------
 if st.button("Run Simulation"):
@@ -200,9 +177,7 @@ if st.button("Run Simulation"):
         df = pd.DataFrame(failure_years, columns=["Year"])
         st.bar_chart(df["Year"].value_counts().sort_index())
 
-    pdf_file = generate_pdf()
-    with open(pdf_file, "rb") as f:
-        st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
+    st.markdown(f"📄 [Download Methodology & Assumptions PDF]({PDF_URL})")
 
     st.success("Simulation complete")
 
