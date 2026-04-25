@@ -21,7 +21,8 @@ initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
 monthly_expense = st.number_input(
     "Monthly Expense (₹)",
     value=100000,
-    help='Enter your current monthly expense in todays value. Model automatically increases every year based on simulated inflation.'
+    help='Enter your current monthly expense in today\'s value. The model automatically increases this every year based on simulated inflation. This 
+means your future withdrawals are NOT constant—they grow over time to maintain purchasing power.'
 )
 st.caption("Note: Expenses are adjusted for inflation each year. They are not constant over the full duration.")
 years = st.slider("Years to simulate", 10, 50, 30)
@@ -59,8 +60,9 @@ st.header("Market Behaviour")
 shock_level = st.selectbox(
     "Market Shock Level",
     ["Low", "Medium", "High"],
-    help="Controls how extreme market ups and downs can be.\n\nLow → Smooth markets\nMedium → Occasional sharp movements\nHigh → Frequent 
-crashes/spikes\n\nTechnically: Uses Student-t distribution (fat tails)."
+    help='Controls how extreme market ups and downs can be.\n\nLow → Smooth markets\nMedium → Occasional sharp movements\nHigh → Frequent 
+crashes/spikes\n\nTechnically: Uses Student-t distribution (fat tails).'
+)."
 )
 
 use_regime = st.checkbox(
