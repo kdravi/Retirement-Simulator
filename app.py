@@ -85,4 +85,39 @@ st.markdown("""
 
 ### What this simulator shows
 You can test:
-- Higher liquid allocation → bette
+- Higher liquid allocation → better downside protection
+- Lower expenses → significantly higher survival probability
+
+Try experimenting with:
+- Increasing Liquid to 20–30%
+- Reducing expenses by 10% in early years
+""")
+
+# Optional: Simple comparison tool
+if st.checkbox("Test impact of reducing expenses by 10%"):
+    reduced_expense = monthly_expense * 0.9
+    alt_results = []
+
+    for _ in range(1000):
+        corpus = initial_corpus
+        withdrawal = reduced_expense * 12
+        regime = "normal"
+
+        for year in range(years):
+            if use_regime:
+                regime = np.random.choice(regime_list, p=transition_matrix[regime])
+                inflation = regimes[regime]["inflation"] + np.random.normal(0, stds["inflation"])
+            else:
+                inflation = np.random.normal(means["inflation"], stds["inflation"])
+
+            portfolio_return = np.random.normal(0.1, 0.15)
+            withdrawal *= (1 + inflation)
+            corpus = corpus * (1 + portfolio_return) - withdrawal
+
+            if corpus <= 0:
+                alt_results.append(False)
+                break
+        else:
+            alt_results.append(True)
+
+    st.metric("Survival with 10% lower expense", f"{sum(alt_results)/len(alt_results)*100:.1f}%")
