@@ -7,30 +7,55 @@ st.set_page_config(page_title="Retirement Survival Simulator", layout="wide")
 # ---------------- UI ----------------
 st.title("Retirement Corpus Survival Simulator")
 
-st.markdown("Simulates whether your retirement savings will last under real-world market conditions.")
+st.info("""
+This tool estimates the probability that your retirement savings will last.
+It simulates thousands of possible future market scenarios.
+Results are not predictions, but probabilities.
+""")
 
-# User Inputs
+# ---------------- Inputs ----------------
 st.header("Your Situation")
 initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
 monthly_expense = st.number_input("Monthly Expense (₹)", value=100000)
 years = st.slider("Years to simulate", 10, 50, 30)
 
-st.header("Asset Allocation (%)")
-eq = st.slider("Equity", 0, 100, 50)
-debt = st.slider("Debt", 0, 100, 30)
-liquid = st.slider("Liquid", 0, 100, 10)
-gold = st.slider("Gold", 0, 100, 5)
-silver = st.slider("Silver", 0, 100, 5)
+st.header("Investment Mix")
+col1, col2, col3 = st.columns(3)
 
-alloc_total = eq + debt + liquid + gold + silver
-if alloc_total != 100:
-    st.warning("Allocation must sum to 100%")
+# Presets
+if col1.button("Conservative"):
+    st.session_state.alloc = [20, 50, 20, 5, 5]
+if col2.button("Balanced"):
+    st.session_state.alloc = [50, 30, 10, 5, 5]
+if col3.button("Aggressive"):
+    st.session_state.alloc = [70, 20, 5, 3, 2]
 
-st.header("Market Settings")
+# Default allocation
+if "alloc" not in st.session_state:
+    st.session_state.alloc = [50, 30, 10, 5, 5]
+
+eq = st.slider("Equity (%)", 0, 100, st.session_state.alloc[0])
+debt = st.slider("Debt (%)", 0, 100, st.session_state.alloc[1])
+liquid = st.slider("Liquid (%)", 0, 100, st.session_state.alloc[2])
+gold = st.slider("Gold (%)", 0, 100, st.session_state.alloc[3])
+silver = st.slider("Silver (%)", 0, 100, st.session_state.alloc[4])
+
+# Normalize allocation
+total = eq + debt + liquid + gold + silver
+if total != 100:
+    eq = eq * 100 / total
+    debt = debt * 100 / total
+    liquid = liquid * 100 / total
+    gold = gold * 100 / total
+    silver = silver * 100 / total
+
+st.caption(f"Adjusted Allocation → Equity: {eq:.1f}%, Debt: {debt:.1f}%, Liquid: {liquid:.1f}%, Gold: {gold:.1f}%, Silver: {silver:.1f}%")
+
+st.header("Market Behaviour")
 shock_level = st.selectbox("Market Shock Level", ["Low", "Medium", "High"])
-use_regime = st.checkbox("Use Economic Regimes", value=True)
+use_regime = st.checkbox("Simulate changing economic conditions", value=True)
 
-simulations = st.slider("Number of simulations", 1000, 20000, 5000)
+simulations = st.slider("Number of simulations", 1000, 10000, 3000)
 
 # ---------------- Parameters ----------------
 means = {
@@ -51,11 +76,9 @@ stds = {
     "inflation": 0.02
 }
 
-# Shock level mapping
 nu_map = {"Low": 10, "Medium": 5, "High": 3}
 nu = nu_map[shock_level]
 
-# Regime definitions
 regimes = {
     "normal": {"inflation": 0.05},
     "high_inflation": {"inflation": 0.09},
@@ -84,10 +107,7 @@ def simulate_once():
         else:
             inflation = np.random.normal(means["inflation"], stds["inflation"])
 
-        # Student-t for equity
         equity_return = means["equity"] + stds["equity"] * np.random.standard_t(nu)
-
-        # Other assets normal
         debt_return = np.random.normal(means["debt"], stds["debt"])
         liquid_return = np.random.normal(means["liquid"], stds["liquid"])
         gold_return = np.random.normal(means["gold"], stds["gold"])
@@ -114,19 +134,29 @@ if st.button("Run Simulation"):
     results = []
     failure_years = []
 
-    for _ in range(simulations):
+    progress = st.progress(0)
+
+    for i in range(simulations):
         success, yr = simulate_once()
         results.append(success)
         if not success:
             failure_years.append(yr)
+        progress.progress((i + 1) / simulations)
 
     survival_prob = sum(results) / simulations
 
     st.header("Results")
-    st.metric("Survival Probability", f"{survival_prob*100:.1f}%")
+    st.metric("Probability your money lasts", f"{survival_prob*100:.1f}%")
+
+    if survival_prob > 0.85:
+        st.success("Your plan looks reasonably safe.")
+    elif survival_prob > 0.70:
+        st.warning("Your plan has moderate risk. Consider adjusting.")
+    else:
+        st.error("High risk of running out of money. Consider changes.")
 
     if failure_years:
-        st.subheader("Failure Year Distribution")
+        st.subheader("When failure may happen")
         df = pd.DataFrame(failure_years, columns=["Year"])
         st.bar_chart(df["Year"].value_counts().sort_index())
 
