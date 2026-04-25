@@ -1,4 +1,4 @@
-import streamlit as st
+=import streamlit as st
 import numpy as np
 import pandas as pd
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -18,6 +18,7 @@ Results are not predictions, but probabilities.
 # ---------------- Inputs ----------------
 st.header("Your Situation")
 initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
+
 monthly_expense = st.number_input(
     "Monthly Expense (₹)",
     value=100000,
@@ -27,7 +28,9 @@ The model automatically increases this every year based on simulated inflation.
 
 This means your future withdrawals are NOT constant—they grow over time to maintain purchasing power."""
 )
+
 st.caption("Note: Expenses are adjusted for inflation each year. They are not constant over the full duration.")
+
 years = st.slider("Years to simulate", 10, 50, 30)
 
 st.header("Investment Mix")
@@ -60,6 +63,7 @@ if total != 100:
 st.caption(f"Adjusted Allocation → Equity: {eq:.1f}%, Debt: {debt:.1f}%, Liquid: {liquid:.1f}%, Gold: {gold:.1f}%, Silver: {silver:.1f}%")
 
 st.header("Market Behaviour")
+
 shock_level = st.selectbox(
     "Market Shock Level",
     ["Low", "Medium", "High"],
@@ -70,18 +74,27 @@ Medium → Occasional sharp movements
 High → Frequent crashes and spikes
 
 Technically: Uses Student-t distribution (fat tails) where extreme events are more likely than normal distribution."""
-).'
-)."
 )
 
 use_regime = st.checkbox(
     "Simulate changing economic conditions",
     value=True,
-    help="Simulates different economic environments like normal growth, high inflation, and low growth using a regime-switching model."
+    help="""Simulates different economic environments over time.
+
+Normal → Steady growth
+High Inflation → Rising prices, stress on equity, stronger gold
+Low Growth → Slower economy, weaker equity, stronger debt
+
+Technically: Uses a regime-switching (Markov) model where the economy transitions between states."""
 )
 
-simulations = st.slider("Number of simulations", 1000, 10000, 3000,
-                        help="Higher = more accurate but slower")
+simulations = st.slider(
+    "Number of simulations",
+    1000,
+    10000,
+    3000,
+    help="""Higher number of simulations increases accuracy but takes more time to compute."""
+)
 
 # ---------------- Parameters ----------------
 means = {"equity": 0.12, "debt": 0.07, "liquid": 0.05, "gold": 0.08, "silver": 0.10, "inflation": 0.06}
@@ -113,7 +126,13 @@ def simulate_once():
         gold_return = np.random.normal(means["gold"], stds["gold"])
         silver_return = np.random.normal(means["silver"], stds["silver"])
 
-        portfolio_return = (eq/100 * equity_return + debt/100 * debt_return + liquid/100 * liquid_return + gold/100 * gold_return + silver/100 * silver_return)
+        portfolio_return = (
+            eq/100 * equity_return +
+            debt/100 * debt_return +
+            liquid/100 * liquid_return +
+            gold/100 * gold_return +
+            silver/100 * silver_return
+        )
 
         withdrawal *= (1 + inflation)
         corpus = corpus * (1 + portfolio_return) - withdrawal
@@ -133,23 +152,19 @@ def generate_pdf():
     content.append(Spacer(1, 12))
 
     content.append(Paragraph("Approach:", styles['Heading2']))
-    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios. Each simulation randomly generates yearly returns for different asset classes and inflation, then evaluates whether the retirement corpus survives.", styles['BodyText']))
+    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Key Concepts:", styles['Heading2']))
-    content.append(Paragraph("1. Sequence of returns risk – early losses hurt more.<br/>2. Inflation-adjusted withdrawals.<br/>3. Diversified asset allocation.<br/>4. Probability-based outcomes instead of single estimates.", styles['BodyText']))
+    content.append(Paragraph("Sequence of returns risk, inflation-adjusted withdrawals, diversified allocation, probability outcomes.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Market Modeling:", styles['Heading2']))
-    content.append(Paragraph("Equity returns use a Student-t distribution to capture extreme events (fat tails). Other assets use normal distributions. Economic regimes simulate changing macro conditions.", styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Assumptions (Typical India context):", styles['Heading2']))
-    content.append(Paragraph("Equity ~12%, Debt ~7%, Gold ~8%, Inflation ~6% with respective volatilities.", styles['BodyText']))
+    content.append(Paragraph("Equity uses Student-t distribution; other assets use normal distribution; regimes simulate macro changes.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Disclaimer:", styles['Heading2']))
-    content.append(Paragraph("This is a probabilistic model for educational purposes. Actual market outcomes may vary significantly.", styles['BodyText']))
+    content.append(Paragraph("Educational tool only. Not financial advice.", styles['BodyText']))
 
     doc.build(content)
     return "retirement_report.pdf"
@@ -183,10 +198,8 @@ if st.button("Run Simulation"):
         df = pd.DataFrame(failure_years, columns=["Year"])
         st.bar_chart(df["Year"].value_counts().sort_index())
 
-    # PDF Download
     pdf_file = generate_pdf()
     with open(pdf_file, "rb") as f:
         st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
 
     st.success("Simulation complete")
-
