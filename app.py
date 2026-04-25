@@ -156,11 +156,13 @@ def generate_pdf():
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Key Concepts:", styles['Heading2']))
-    content.append(Paragraph("Sequence of returns risk, inflation-adjusted withdrawals, diversified allocation, probability outcomes.", styles['BodyText']))
+    content.append(Paragraph("Sequence of returns risk, inflation-adjusted withdrawals, diversified allocation, probability outcomes.", 
+styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Market Modeling:", styles['Heading2']))
-    content.append(Paragraph("Equity uses Student-t distribution; other assets use normal distribution; regimes simulate macro changes.", styles['BodyText']))
+    content.append(Paragraph("Equity uses Student-t distribution; other assets use normal distribution; regimes simulate macro changes.", 
+styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Disclaimer:", styles['Heading2']))
@@ -203,3 +205,4 @@ if st.button("Run Simulation"):
         st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
 
     st.success("Simulation complete")
+
