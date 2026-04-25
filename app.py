@@ -21,8 +21,11 @@ initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
 monthly_expense = st.number_input(
     "Monthly Expense (₹)",
     value=100000,
-    help='Enter your current monthly expense in today\'s value. The model automatically increases this every year based on simulated inflation. This 
-means your future withdrawals are NOT constant—they grow over time to maintain purchasing power.'
+    help="""Enter your current monthly expense in today's value.
+
+The model automatically increases this every year based on simulated inflation.
+
+This means your future withdrawals are NOT constant—they grow over time to maintain purchasing power."""
 )
 st.caption("Note: Expenses are adjusted for inflation each year. They are not constant over the full duration.")
 years = st.slider("Years to simulate", 10, 50, 30)
@@ -60,8 +63,13 @@ st.header("Market Behaviour")
 shock_level = st.selectbox(
     "Market Shock Level",
     ["Low", "Medium", "High"],
-    help='Controls how extreme market ups and downs can be.\n\nLow → Smooth markets\nMedium → Occasional sharp movements\nHigh → Frequent 
-crashes/spikes\n\nTechnically: Uses Student-t distribution (fat tails).'
+    help='Controls how extreme market ups and downs can be.
+
+Low → Smooth markets
+Medium → Occasional sharp movements
+High → Frequent crashes/spikes
+
+Technically: Uses Student-t distribution (fat tails).'
 )."
 )
 
@@ -104,8 +112,7 @@ def simulate_once():
         gold_return = np.random.normal(means["gold"], stds["gold"])
         silver_return = np.random.normal(means["silver"], stds["silver"])
 
-        portfolio_return = (eq/100 * equity_return + debt/100 * debt_return + liquid/100 * liquid_return + gold/100 * gold_return + silver/100 * 
-silver_return)
+        portfolio_return = (eq/100 * equity_return + debt/100 * debt_return + liquid/100 * liquid_return + gold/100 * gold_return + silver/100 * silver_return)
 
         withdrawal *= (1 + inflation)
         corpus = corpus * (1 + portfolio_return) - withdrawal
@@ -125,18 +132,15 @@ def generate_pdf():
     content.append(Spacer(1, 12))
 
     content.append(Paragraph("Approach:", styles['Heading2']))
-    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios. Each simulation randomly generates 
-yearly returns for different asset classes and inflation, then evaluates whether the retirement corpus survives.", styles['BodyText']))
+    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios. Each simulation randomly generates yearly returns for different asset classes and inflation, then evaluates whether the retirement corpus survives.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Key Concepts:", styles['Heading2']))
-    content.append(Paragraph("1. Sequence of returns risk – early losses hurt more.<br/>2. Inflation-adjusted withdrawals.<br/>3. Diversified asset 
-allocation.<br/>4. Probability-based outcomes instead of single estimates.", styles['BodyText']))
+    content.append(Paragraph("1. Sequence of returns risk – early losses hurt more.<br/>2. Inflation-adjusted withdrawals.<br/>3. Diversified asset allocation.<br/>4. Probability-based outcomes instead of single estimates.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Market Modeling:", styles['Heading2']))
-    content.append(Paragraph("Equity returns use a Student-t distribution to capture extreme events (fat tails). Other assets use normal distributions. 
-Economic regimes simulate changing macro conditions.", styles['BodyText']))
+    content.append(Paragraph("Equity returns use a Student-t distribution to capture extreme events (fat tails). Other assets use normal distributions. Economic regimes simulate changing macro conditions.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Assumptions (Typical India context):", styles['Heading2']))
@@ -144,8 +148,7 @@ Economic regimes simulate changing macro conditions.", styles['BodyText']))
 
     content.append(Spacer(1, 10))
     content.append(Paragraph("Disclaimer:", styles['Heading2']))
-    content.append(Paragraph("This is a probabilistic model for educational purposes. Actual market outcomes may vary significantly.", 
-styles['BodyText']))
+    content.append(Paragraph("This is a probabilistic model for educational purposes. Actual market outcomes may vary significantly.", styles['BodyText']))
 
     doc.build(content)
     return "retirement_report.pdf"
@@ -185,4 +188,3 @@ if st.button("Run Simulation"):
         st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
 
     st.success("Simulation complete")
-
