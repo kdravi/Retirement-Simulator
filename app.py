@@ -254,20 +254,47 @@ def simulate_paths():
     return np.array(paths)
 
 # Plot fan chart
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+
 if st.button("Show Corpus Projection"):
     paths = simulate_paths()
 
     percentiles = np.percentile(paths, [5, 25, 50, 75, 95], axis=0)
 
-    fig, ax = plt.subplots()
-    ax.plot(percentiles[2], label="Median")
-    ax.fill_between(range(years), percentiles[0], percentiles[4], alpha=0.2, label="Extreme range")
-    ax.fill_between(range(years), percentiles[1], percentiles[3], alpha=0.3, label="Typical range")
+    # Convert to Crores
+    percentiles = percentiles / 1e7  # 1 Crore = 1e7
 
-    ax.set_title("Corpus Projection Over Time")
-    ax.set_xlabel("Years")
-    ax.set_ylabel("Corpus")
-    ax.legend()
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+
+    # Median line
+    ax.plot(percentiles[2], linewidth=2, label="Median")
+
+    # Shaded ranges
+    ax.fill_between(range(years), percentiles[0], percentiles[4], alpha=0.15, label="Extreme range (5–95%)")
+    ax.fill_between(range(years), percentiles[1], percentiles[3], alpha=0.25, label="Typical range (25–75%)")
+
+    # Red zero line
+    ax.axhline(y=0, linewidth=1.5, linestyle="--", color="red")
+
+    # Labels & title
+    ax.set_title("Corpus Projection Over Time", fontsize=12)
+    ax.set_xlabel("Years", fontsize=10)
+    ax.set_ylabel("Corpus (₹ Crores)", fontsize=10)
+
+    ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f Cr'))
+
+    # Tick formatting
+    ax.tick_params(axis='both', labelsize=9)
+
+    # Grid (light)
+    ax.grid(alpha=0.2)
+
+    # Legend
+    ax.legend(fontsize=9)
+
+    # Tight layout
+    plt.tight_layout()
 
     st.pyplot(fig)
 
