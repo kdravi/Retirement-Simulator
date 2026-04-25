@@ -63,13 +63,14 @@ st.header("Market Behaviour")
 shock_level = st.selectbox(
     "Market Shock Level",
     ["Low", "Medium", "High"],
-    help='Controls how extreme market ups and downs can be.
+    help="""Controls how extreme market ups and downs can be.
 
 Low → Smooth markets
 Medium → Occasional sharp movements
-High → Frequent crashes/spikes
+High → Frequent crashes and spikes
 
-Technically: Uses Student-t distribution (fat tails).'
+Technically: Uses Student-t distribution (fat tails) where extreme events are more likely than normal distribution."""
+).'
 )."
 )
 
@@ -188,3 +189,4 @@ if st.button("Run Simulation"):
         st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
 
     st.success("Simulation complete")
+
