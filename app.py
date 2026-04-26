@@ -145,7 +145,12 @@ def simulate_once():
         yearly_values.append(max(corpus, 0))
 
         if corpus <= 0:
+            remaining_years = years - year - 1
+
             yearly_values += [0] * (years - year - 1)
+
+            last_expense = yearly_expenses[-1]
+            yearly_expenses += [last_expense] * remaining_years
             return False, year, yearly_values, yearly_expenses
 
     return True, years, yearly_values, yearly_expenses
@@ -164,6 +169,7 @@ if st.button("Run Simulation"):
         results.append(success)
         if not success:
             failure_years.append(yr)
+
         progress.progress((i + 1) / simulations)
         paths.append(yearly_values)
         expense_paths.append(yearly_expenses)
