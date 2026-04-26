@@ -115,6 +115,7 @@ def simulate_once():
     corpus = initial_corpus
     withdrawal = monthly_expense * 12
     yearly_values = []
+    yearly_expenses = []
     regime = "normal"
 
     for year in range(years):
@@ -139,6 +140,7 @@ def simulate_once():
         )
 
         withdrawal *= (1 + inflation)
+        yearly_expenses.append(withdrawal)
         corpus = corpus * (1 + portfolio_return) - withdrawal
         yearly_values.append(max(corpus, 0))
 
@@ -149,24 +151,25 @@ def simulate_once():
     return True, years, yearly_values
 
 
-
 # ---------------- Run Simulation ----------------
 if st.button("Run Simulation"):
     results = []
     failure_years = []
     progress = st.progress(0)
     paths = []
+    expense_paths = []
 
     for i in range(simulations):
-        success, yr, yearly_values = simulate_once()
+        success, yr, yearly_values, yearly_expenses = simulate_once()
         results.append(success)
         if not success:
             failure_years.append(yr)
         progress.progress((i + 1) / simulations)
         paths.append(yearly_values)
+        expense_paths.append(yearly_expenses)
 
     survival_prob = sum(results) / simulations
-    
+
 
     st.header("Results")
     st.metric("Probability your money lasts", f"{survival_prob*100:.1f}%")
@@ -178,54 +181,52 @@ if st.button("Run Simulation"):
     else:
         st.error("High risk of running out of money.")
 
-    if failure_years:
-        df = pd.DataFrame(failure_years, columns=["Year"])
-        st.bar_chart(df["Year"].value_counts().sort_index())
-
-
     # Plot fan chart
     percentiles = np.percentile(paths, [5, 25, 50, 75, 95], axis=0)
 
     # Convert to Crores
     percentiles = percentiles / 1e7  # 1 Crore = 1e7
 
-    fig, ax = plt.subplots(figsize=(8, 4.5))
+    expense_percentiles = np.percentile(expense_paths, [50], axis=0)  # median only
+    expense_percentiles = expense_percentiles / 1e5  # convert to Lakhs
 
-    # Median line
-    ax.plot(percentiles[2], linewidth=2, label="Median")
 
-    # Shaded ranges
-    ax.fill_between(range(years), percentiles[0], percentiles[4], alpha=0.15, label="Extreme range (5–95%)")
-    ax.fill_between(range(years), percentiles[1], percentiles[3], alpha=0.25, label="Typical range (25–75%)")
+    # Plotting chart below
+ 
 
-    # Red zero line
-    ax.axhline(y=0, linewidth=1.5, linestyle="--", color="red")
+    fig, ax1 = plt.subplots(figsize=(8, 4.5))
 
-    # Labels & title
-    ax.set_title("Corpus Projection Over Time", fontsize=12)
-    ax.set_xlabel("Years", fontsize=10)
-    ax.set_ylabel("Corpus (₹ Crores)", fontsize=10)
+    # Corpus (existing)
+    ax1.plot(percentiles[2], linewidth=2, label="Median Corpus")
+    ax1.fill_between(range(years), percentiles[0], percentiles[4], alpha=0.15)
+    ax1.fill_between(range(years), percentiles[1], percentiles[3], alpha=0.25)
 
-    ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f Cr'))
+    ax1.set_ylabel("Corpus (₹ Crores)")
+    ax1.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f Cr'))
 
-    # Tick formatting
-    ax.tick_params(axis='both', labelsize=9)
+    # Expense axis (NEW)
+    ax2 = ax1.twinx()
+    ax2.plot(expense_percentiles[0], linestyle="--", label="Annual Expense", linewidth=2)
+    ax2.set_ylabel("Annual Expense (₹ Lakhs)")
 
-    # Grid (light)
-    ax.grid(alpha=0.2)
+    # Common
+    ax1.set_title("Corpus vs Inflation-Adjusted Expenses")
+    ax1.set_xlabel("Years")
 
-    # Legend
-    ax.legend(fontsize=9)
+    ax1.axhline(y=0, linestyle="--", linewidth=1)
 
-    # Tight layout
+    ax1.grid(alpha=0.2)
+
+    # Combined legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2)
+
     plt.tight_layout()
-
     st.pyplot(fig)
 
 
-
     st.success("Simulation complete")
-
 
 
 # ---------------- Risk Mitigation Section ----------------
