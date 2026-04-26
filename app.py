@@ -236,9 +236,6 @@ if st.button("Run Simulation"):
     # Convert to Crores
     percentiles = percentiles / 1e7  # 1 Crore = 1e7
 
-    st.write("Debug lengths:", set(len(x) for x in expense_paths))
-
-
 
     expense_array = np.array(expense_paths, dtype=float)
     expense_percentiles = np.percentile(expense_paths, [50], axis=0)  # median only
