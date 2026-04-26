@@ -103,7 +103,7 @@ simulations = st.slider(
 
 st.header("Tax Settings")
 
-tax_mode = st.radio("Filing Type", ["Single", "Couple"])
+tax_mode = st.radio("Filing Type", [ "Couple", "Single"])
 
 st.caption("Basic simplified Indian tax assumptions applied.")
 
