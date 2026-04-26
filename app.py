@@ -285,7 +285,9 @@ if st.button("Run Simulation"):
 
 # ---------------- Risk Mitigation Section ----------------
 
-st.header("Understanding Sequence of Returns Risk")
+st.caption("Why early bad returns can break retirement even if averages look fine.")
+
+with st.expander("Understanding Sequence of Returns Risk", expanded=False):
 
 st.markdown("""
 **Sequence risk** means that poor returns in the early years of retirement can significantly reduce your corpus, even if long-term averages are good.
