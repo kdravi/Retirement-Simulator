@@ -289,32 +289,32 @@ st.caption("Why early bad returns can break retirement even if averages look fin
 
 with st.expander("Understanding Sequence of Returns Risk", expanded=False):
 
-st.markdown("""
-**Sequence risk** means that poor returns in the early years of retirement can significantly reduce your corpus, even if long-term averages are good.
+    st.markdown("""
+    **Sequence risk** means that poor returns in the early years of retirement can significantly reduce your corpus, even if long-term averages are good.
 
-### Practical ways to manage this risk:
+    ### Practical ways to manage this risk:
 
-**1. Maintain 5–7 years of expenses in safe assets (Liquid/Debt)**
-- Avoid selling equity during market crashes
-- Gives time for markets to recover
+    **1. Maintain 5–7 years of expenses in safe assets (Liquid/Debt)**
+    - Avoid selling equity during market crashes
+    - Gives time for markets to recover
 
-**2. Flexible withdrawals**
-- Reduce expenses temporarily during market downturns
-- Even a 10–15% reduction in early bad years can improve survival probability significantly
+    **2. Flexible withdrawals**
+    - Reduce expenses temporarily during market downturns
+    - Even a 10–15% reduction in early bad years can improve survival probability significantly
 
-**3. Glide path allocation**
-- Start with slightly higher allocation to safe assets
-- Gradually increase equity later
+    **3. Glide path allocation**
+    - Start with slightly higher allocation to safe assets
+    - Gradually increase equity later
 
-### What this simulator shows
-You can test:
-- Higher liquid allocation → better downside protection
-- Lower expenses → significantly higher survival probability
+    ### What this simulator shows
+    You can test:
+    - Higher liquid allocation → better downside protection
+    - Lower expenses → significantly higher survival probability
 
-Try experimenting with:
-- Increasing Liquid to 20–30%
-- Reducing expenses by 10% in early years
-""")
+    Try experimenting with:
+    - Increasing Liquid to 20–30%
+    - Reducing expenses by 10% in early years
+    """)
 
 
 # Read the PDF file in binary mode
