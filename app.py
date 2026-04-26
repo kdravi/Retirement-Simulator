@@ -121,6 +121,31 @@ regimes = {"normal": {"inflation": 0.05}, "high_inflation": {"inflation": 0.09},
 transition_matrix = {"normal": [0.7, 0.15, 0.15], "high_inflation": [0.4, 0.5, 0.1], "low_growth": [0.5, 0.1, 0.4]}
 regime_list = list(regimes.keys())
 
+
+
+# Simplified Tax function
+
+def calculate_tax(income, mode):
+    # basic slabs (simplified new regime style)
+    if mode == "Single":
+        exemption = 300000
+    else:
+        exemption = 600000  # assume split income benefit
+
+    taxable = max(0, income - exemption)
+
+    if taxable <= 300000:
+        tax = taxable * 0.05
+    elif taxable <= 600000:
+        tax = 15000 + (taxable - 300000) * 0.10
+    elif taxable <= 900000:
+        tax = 45000 + (taxable - 600000) * 0.15
+    else:
+        tax = 90000 + (taxable - 900000) * 0.20
+
+    return tax
+
+
 # ---------------- Simulation ----------------
 def simulate_once():
     corpus = initial_corpus
@@ -256,28 +281,6 @@ if st.button("Run Simulation"):
 
 
     st.success("Simulation complete")
-
-# Simplified Tax function
-
-def calculate_tax(income, mode):
-    # basic slabs (simplified new regime style)
-    if mode == "Single":
-        exemption = 300000
-    else:
-        exemption = 600000  # assume split income benefit
-
-    taxable = max(0, income - exemption)
-
-    if taxable <= 300000:
-        tax = taxable * 0.05
-    elif taxable <= 600000:
-        tax = 15000 + (taxable - 300000) * 0.10
-    elif taxable <= 900000:
-        tax = 45000 + (taxable - 600000) * 0.15
-    else:
-        tax = 90000 + (taxable - 900000) * 0.20
-
-    return tax
 
 
 # ---------------- Risk Mitigation Section ----------------
