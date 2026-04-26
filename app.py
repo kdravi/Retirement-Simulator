@@ -148,7 +148,7 @@ def simulate_once():
             yearly_values += [0] * (years - year - 1)
             return False, year, yearly_values
 
-    return True, years, yearly_values
+    return True, years, yearly_values, yearly_expenses
 
 
 # ---------------- Run Simulation ----------------
