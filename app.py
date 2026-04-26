@@ -20,7 +20,7 @@ Results are not predictions, but probabilities.
 
 # ---------------- Inputs ----------------
 st.header("Your Situation")
-initial_corpus = st.number_input("Starting Corpus (₹)", value=50000000)
+initial_corpus = st.number_input("Starting Corpus (₹)", value=40000000)
 
 monthly_expense = st.number_input(
     "Monthly Expense (₹)",
