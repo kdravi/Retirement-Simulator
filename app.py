@@ -99,6 +99,17 @@ simulations = st.slider(
     help="""Higher number of simulations increases accuracy but takes more time to compute."""
 )
 
+# Tax Inputs
+
+st.header("Tax Settings")
+
+tax_mode = st.radio("Filing Type", ["Single", "Couple"])
+
+st.caption("Basic simplified Indian tax assumptions applied.")
+
+
+
+
 # ---------------- Parameters ----------------
 means = {"equity": 0.12, "debt": 0.07, "liquid": 0.05, "gold": 0.08, "silver": 0.10, "inflation": 0.06}
 stds = {"equity": 0.20, "debt": 0.04, "liquid": 0.015, "gold": 0.18, "silver": 0.30, "inflation": 0.02}
@@ -140,8 +151,14 @@ def simulate_once():
         )
 
         withdrawal *= (1 + inflation)
+
+        # Tax to include in expenses
+        gross_withdrawal = withdrawal
+        tax = calculate_tax(gross_withdrawal, tax_mode)
+        net_withdrawal = gross_withdrawal + tax  # user needs extra to pay tax
+
         yearly_expenses.append(withdrawal)
-        corpus = corpus * (1 + portfolio_return) - withdrawal
+        corpus = corpus * (1 + portfolio_return) - net_withdrawal
         yearly_values.append(max(corpus, 0))
 
         if corpus <= 0:
@@ -239,6 +256,28 @@ if st.button("Run Simulation"):
 
 
     st.success("Simulation complete")
+
+# Simplified Tax function
+
+def calculate_tax(income, mode):
+    # basic slabs (simplified new regime style)
+    if mode == "Single":
+        exemption = 300000
+    else:
+        exemption = 600000  # assume split income benefit
+
+    taxable = max(0, income - exemption)
+
+    if taxable <= 300000:
+        tax = taxable * 0.05
+    elif taxable <= 600000:
+        tax = 15000 + (taxable - 300000) * 0.10
+    elif taxable <= 900000:
+        tax = 45000 + (taxable - 600000) * 0.15
+    else:
+        tax = 90000 + (taxable - 900000) * 0.20
+
+    return tax
 
 
 # ---------------- Risk Mitigation Section ----------------
