@@ -168,6 +168,7 @@ if st.button("Run Simulation"):
         paths.append(yearly_values)
         expense_paths.append(yearly_expenses)
 
+
     survival_prob = sum(results) / simulations
 
 
@@ -187,6 +188,7 @@ if st.button("Run Simulation"):
     # Convert to Crores
     percentiles = percentiles / 1e7  # 1 Crore = 1e7
 
+    st.write("Debug lengths:", set(len(x) for x in expense_paths))
     expense_percentiles = np.percentile(expense_paths, [50], axis=0)  # median only
     expense_percentiles = expense_percentiles / 1e5  # convert to Lakhs
 
