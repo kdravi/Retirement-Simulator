@@ -146,7 +146,7 @@ def simulate_once():
 
         if corpus <= 0:
             yearly_values += [0] * (years - year - 1)
-            return False, year, yearly_values
+            return False, year, yearly_values, yearly_expenses
 
     return True, years, yearly_values, yearly_expenses
 
