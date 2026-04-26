@@ -1,9 +1,9 @@
-
 import streamlit as st
 import numpy as np
 import pandas as pd
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+import matplotlib as plt
 
 st.set_page_config(page_title="Retirement Survival Simulator", layout="wide")
 
@@ -146,48 +146,6 @@ def simulate_once():
 
     return True, years, yearly_values
 
-# Simulation to store paths
-
-def simulate_paths():
-    paths = []
-    for _ in range(simulations):
-        corpus = initial_corpus
-        withdrawal = monthly_expense * 12
-        yearly_values = []
-        regime = "normal"
-
-        for year in range(years):
-            if use_regime:
-                regime = np.random.choice(regime_list, p=transition_matrix[regime])
-                inflation = regimes[regime]["inflation"] + np.random.normal(0, stds["inflation"])
-            else:
-                inflation = np.random.normal(means["inflation"], stds["inflation"])
-
-            equity_return = means["equity"] + stds["equity"] * np.random.standard_t(nu)
-            debt_return = np.random.normal(means["debt"], stds["debt"])
-            liquid_return = np.random.normal(means["liquid"], stds["liquid"])
-            gold_return = np.random.normal(means["gold"], stds["gold"])
-            silver_return = np.random.normal(means["silver"], stds["silver"])
-
-            portfolio_return = (
-                eq/100 * equity_return +
-                debt/100 * debt_return +
-                liquid/100 * liquid_return +
-                gold/100 * gold_return +
-                silver/100 * silver_return
-            )
-
-            withdrawal *= (1 + inflation)
-            corpus = corpus * (1 + portfolio_return) - withdrawal
-            yearly_values.append(max(corpus, 0))
-
-            if corpus <= 0:
-                yearly_values += [0] * (years - year - 1)
-                break
-
-        paths.append(yearly_values)
-
-    return np.array(paths)
 
 
 # ---------------- Run Simulation ----------------
