@@ -1,3 +1,4 @@
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -111,6 +112,7 @@ regime_list = list(regimes.keys())
 def simulate_once():
     corpus = initial_corpus
     withdrawal = monthly_expense * 12
+    yearly_values = []
     regime = "normal"
 
     for year in range(years):
@@ -136,81 +138,15 @@ def simulate_once():
 
         withdrawal *= (1 + inflation)
         corpus = corpus * (1 + portfolio_return) - withdrawal
+        yearly_values.append(max(corpus, 0))
 
         if corpus <= 0:
+            yearly_values += [0] * (years - year - 1)
             return False, year
 
-    return True, years
+    return True, years, yearly_values
 
-# ---------------- PDF Generator ----------------
-def generate_pdf():
-    doc = SimpleDocTemplate("retirement_report.pdf")
-    styles = getSampleStyleSheet()
-    content = []
-
-    content.append(Paragraph("Retirement Simulation – Methodology & Assumptions", styles['Title']))
-    content.append(Spacer(1, 12))
-
-    content.append(Paragraph("Approach:", styles['Heading2']))
-    content.append(Paragraph("This tool uses Monte Carlo simulation to model thousands of possible future scenarios.", styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Key Concepts:", styles['Heading2']))
-    content.append(Paragraph("Sequence of returns risk, inflation-adjusted withdrawals, diversified allocation, probability outcomes.", 
-styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Market Modeling:", styles['Heading2']))
-    content.append(Paragraph("Equity uses Student-t distribution; other assets use normal distribution; regimes simulate macro changes.", 
-styles['BodyText']))
-
-    content.append(Spacer(1, 10))
-    content.append(Paragraph("Disclaimer:", styles['Heading2']))
-    content.append(Paragraph("Educational tool only. Not financial advice.", styles['BodyText']))
-
-    doc.build(content)
-    return "retirement_report.pdf"
-
-# ---------------- Run Simulation ----------------
-if st.button("Run Simulation"):
-    results = []
-    failure_years = []
-    progress = st.progress(0)
-
-    for i in range(simulations):
-        success, yr = simulate_once()
-        results.append(success)
-        if not success:
-            failure_years.append(yr)
-        progress.progress((i + 1) / simulations)
-
-    survival_prob = sum(results) / simulations
-
-    st.header("Results")
-    st.metric("Probability your money lasts", f"{survival_prob*100:.1f}%")
-
-    if survival_prob > 0.85:
-        st.success("Your plan looks reasonably safe.")
-    elif survival_prob > 0.70:
-        st.warning("Your plan has moderate risk.")
-    else:
-        st.error("High risk of running out of money.")
-
-    if failure_years:
-        df = pd.DataFrame(failure_years, columns=["Year"])
-        st.bar_chart(df["Year"].value_counts().sort_index())
-
-    pdf_file = generate_pdf()
-    with open(pdf_file, "rb") as f:
-        st.download_button("Download Methodology PDF", f, file_name="retirement_simulation.pdf")
-
-    st.success("Simulation complete")
-
-
-# Add this section AFTER simulation to create a fan chart (clean visualization)
-import matplotlib.pyplot as plt
-
-# Modify simulation to store paths
+# Simulation to store paths
 
 def simulate_paths():
     paths = []
@@ -253,13 +189,41 @@ def simulate_paths():
 
     return np.array(paths)
 
-# Plot fan chart
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 
-if st.button("Show Corpus Projection"):
-    paths = simulate_paths()
+# ---------------- Run Simulation ----------------
+if st.button("Run Simulation"):
+    results = []
+    failure_years = []
+    progress = st.progress(0)
+    paths = []
 
+    for i in range(simulations):
+        success, yr, yearly_values = simulate_once()
+        results.append(success)
+        if not success:
+            failure_years.append(yr)
+        progress.progress((i + 1) / simulations)
+        paths.append(yearly_values)
+
+    survival_prob = sum(results) / simulations
+    
+
+    st.header("Results")
+    st.metric("Probability your money lasts", f"{survival_prob*100:.1f}%")
+
+    if survival_prob > 0.85:
+        st.success("Your plan looks reasonably safe.")
+    elif survival_prob > 0.70:
+        st.warning("Your plan has moderate risk.")
+    else:
+        st.error("High risk of running out of money.")
+
+    if failure_years:
+        df = pd.DataFrame(failure_years, columns=["Year"])
+        st.bar_chart(df["Year"].value_counts().sort_index())
+
+
+    # Plot fan chart
     percentiles = np.percentile(paths, [5, 25, 50, 75, 95], axis=0)
 
     # Convert to Crores
@@ -297,6 +261,12 @@ if st.button("Show Corpus Projection"):
     plt.tight_layout()
 
     st.pyplot(fig)
+
+
+
+    st.success("Simulation complete")
+
+
 
 # ---------------- Risk Mitigation Section ----------------
 
