@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import io
 
 st.set_page_config(page_title="Retirement Survival Simulator", layout="wide")
 
@@ -142,7 +144,7 @@ def simulate_once():
 
         if corpus <= 0:
             yearly_values += [0] * (years - year - 1)
-            return False, year
+            return False, year, yearly_values
 
     return True, years, yearly_values
 
@@ -285,3 +287,15 @@ if st.checkbox("Test impact of reducing expenses by 10%"):
             alt_results.append(True)
 
     st.metric("Survival with 10% lower expense", f"{sum(alt_results)/len(alt_results)*100:.1f}%")
+
+# Read the PDF file in binary mode
+with open("retirement_simulation_methodology.pdf", "rb") as pdf_file:
+    PDFbyte = pdf_file.read()
+
+# Create the download button
+st.download_button(
+    label="Download Simulation Methodology Document",
+    data=PDFbyte,
+    file_name="retirement_simulation_methodology.pdf",
+    mime="application/pdf"
+)
